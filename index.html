@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car List</title>
+</head>
+
+<body>
+    <button id="btnMaisModelos">Marca com Mais Modelos</button>
+    <p id="resultado"></p>
+
+    <script>
+        document.getElementById('btnMaisModelos').addEventListener('click', async () => {
+            try {
+                const response = await fetch('http://localhost:3000');
+                const data = await response.json();
+                const marcas = data.dados;
+
+                const marcaComMaisModelos = encontrarMarcaComMaisModelos(marcas);
+                document.getElementById('resultado').innerText = `Marca com mais modelos: ${marcaComMaisModelos}`;
+            } catch (error) {
+                console.error(error);
+            }
+        });
+
+        function encontrarMarcaComMaisModelos(marcas) {
+            let marcaMaisModelos = '';
+            let maxModelos = 0;
+
+            marcas.forEach((marca) => {
+                if (marca.models.length > maxModelos) {
+                    maxModelos = marca.models.length;
+                    marcaMaisModelos = marca.brand;
+                }
+            });
+
+            return marcaMaisModelos;
+        }
+    </script>
+</body>
+
+</html>
