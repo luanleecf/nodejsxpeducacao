@@ -14,10 +14,11 @@
     <script>
         document.getElementById('btnMaisModelos').addEventListener('click', async () => {
             try {
-                const response = await fetch('http://localhost:3000');
+                const response = await fetch('/');
                 const data = await response.json();
                 const marcas = data.dados;
 
+                // Chama a função para encontrar a marca com mais modelos
                 const marcaComMaisModelos = encontrarMarcaComMaisModelos(marcas);
                 document.getElementById('resultado').innerText = `Marca com mais modelos: ${marcaComMaisModelos}`;
             } catch (error) {
@@ -25,6 +26,7 @@
             }
         });
 
+        // Função para encontrar a marca com mais modelos
         function encontrarMarcaComMaisModelos(marcas) {
             let marcaMaisModelos = '';
             let maxModelos = 0;

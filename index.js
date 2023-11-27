@@ -5,6 +5,8 @@ const jsonHandler = require('./jsonHandler'); // Importe o módulo jsonHandler
 const app = express();
 const port = 3000;
 
+app.use(express.static('public')); // Adicione esta linha para servir arquivos estáticos do diretório 'public'
+
 app.get('/', (req, res) => {
   const githubUrl = 'https://raw.githubusercontent.com/matthlavacka/car-list/master/car-list.json';
 
