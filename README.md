@@ -28,17 +28,11 @@ Node.js e npm: Certifique-se de ter o Node.js instalado. Você pode baixá-lo em
 
 Clone o Repositório: Faça o clone deste repositório em sua máquina local.
 
-bash
-Copy code
 git clone https://github.com/luanleecf/nodejsxpeducacao.git
 Instale as Dependências: Navegue até o diretório do projeto e execute o seguinte comando para instalar as dependências.
 
-bash
-Copy code
 npm install
 Inicie o Servidor: Após a conclusão da instalação, inicie o servidor local com o seguinte comando:
 
-bash
-Copy code
 npm start
 O servidor será iniciado e estará disponível em http://localhost:3000/.
