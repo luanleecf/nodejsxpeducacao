@@ -1,46 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Car List</title>
+    <title>Links</title>
 </head>
 
 <body>
-    <button id="btnMaisModelos">Marca com Mais Modelos</button>
-    <p id="resultado"></p>
+    <h1>Links Úteis</h1>
+    <ul>
+        <li><a href="/marcas/maisModelos">Marcas com mais modelos</a></li>
+        <li><a href="/marcas/menosModelos">Marcas com menos modelos</a></li>
+        <li><a href="/marcas/listaMaisModelos/5">Marcas com mais modelos (top 5)</a></li>
+        <li><a href="/marcas/listaModelos/5">Marcas com menos modelos (top 5)</a></li>
+        <li>
+            <button onclick="event.preventDefault(); document.getElementById('postForm').submit();">Buscar Modelos por
+                Marca (POST)</button>
+        </li>
+    </ul>
 
-    <script>
-        document.getElementById('btnMaisModelos').addEventListener('click', async () => {
-            try {
-                const response = await fetch('/');
-                const data = await response.json();
-                const marcas = data.dados;
-
-                // Chama a função para encontrar a marca com mais modelos
-                const marcaComMaisModelos = encontrarMarcaComMaisModelos(marcas);
-                document.getElementById('resultado').innerText = `Marca com mais modelos: ${marcaComMaisModelos}`;
-            } catch (error) {
-                console.error(error);
-            }
-        });
-
-        // Função para encontrar a marca com mais modelos
-        function encontrarMarcaComMaisModelos(marcas) {
-            let marcaMaisModelos = '';
-            let maxModelos = 0;
-
-            marcas.forEach((marca) => {
-                if (marca.models.length > maxModelos) {
-                    maxModelos = marca.models.length;
-                    marcaMaisModelos = marca.brand;
-                }
-            });
-
-            return marcaMaisModelos;
-        }
-    </script>
+    <form id="postForm" action="/marcas/listaModelos" method="post" style="display: none;">
+        <label for="nomeMarcaInput">Nome da Marca:</label>
+        <input type="text" name="nomeMarca" id="nomeMarcaInput" value="Marca A">
+        <label for="dadosJsonInput">Dados JSON:</label>
+        <input type="text" name="dadosJson" id="dadosJsonInput" value='{"exemplo": "dados"}'>
+    </form>
 </body>
 
 </html>

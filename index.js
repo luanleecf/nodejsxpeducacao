@@ -1,10 +1,16 @@
 const express = require('express');
 const https = require('https');
+const bodyParser = require('body-parser');
 
 const app = express();
 const port = 3000;
+app.use(bodyParser.json());
 
-app.get('', (req, res) => {
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
+
+app.get('getFullDados', (req, res) => {
   try {
     const githubUrl = 'https://raw.githubusercontent.com/matthlavacka/car-list/master/car-list.json';
 
@@ -35,7 +41,7 @@ app.get('', (req, res) => {
 });
 
 // Nova rota para encontrar a marca com mais modelos
-app.get('/marca-com-mais-modelos', (req, res) => {
+app.get('/marcas/maisModelos', (req, res) => {
   try {
     const githubUrl = 'https://raw.githubusercontent.com/matthlavacka/car-list/master/car-list.json';
 
@@ -49,8 +55,8 @@ app.get('/marca-com-mais-modelos', (req, res) => {
       response.on('end', () => {
         try {
           const dadosJson = JSON.parse(data);
-          const marcaComMaisModelos = encontrarMarcaComMaisModelos(dadosJson);
-          res.json({ marcaComMaisModelos });
+          const marcasComMaisModelos = encontrarMarcasComMaisModelos(dadosJson);
+          res.json({ marcasComMaisModelos });
         } catch (error) {
           console.error(error);
           res.status(500).json({ error: 'Erro ao processar JSON do GitHub' });
@@ -66,28 +72,8 @@ app.get('/marca-com-mais-modelos', (req, res) => {
   }
 });
 
-// Função para encontrar a marca com mais modelos
-function encontrarMarcaComMaisModelos(jsonData) {
-  try {
-    let marcaMaisModelos = '';
-    let maxModelos = 0;
-
-    jsonData.forEach((marca) => {
-      if (marca.models.length > maxModelos) {
-        maxModelos = marca.models.length;
-        marcaMaisModelos = marca.brand;
-      }
-    });
-
-    return marcaMaisModelos;
-  } catch (error) {
-    console.error(`Erro ao encontrar a marca com mais modelos: ${error.message}`);
-    throw error;
-  }
-}
-
 // Nova rota para encontrar a marca com menos modelos
-app.get('/marca-com-menos-modelos', (req, res) => {
+app.get('/marcas/menosModelos', (req, res) => {
   try {
     const githubUrl = 'https://raw.githubusercontent.com/matthlavacka/car-list/master/car-list.json';
 
@@ -101,8 +87,8 @@ app.get('/marca-com-menos-modelos', (req, res) => {
       response.on('end', () => {
         try {
           const dadosJson = JSON.parse(data);
-          const marcaComMenosModelos = encontrarMarcaComMenosModelos(dadosJson);
-          res.json({ marcaComMenosModelos });
+          const marcasComMenosModelos = encontrarMarcasComMenosModelos(dadosJson);
+          res.json({ marcasComMenosModelos });
         } catch (error) {
           console.error(error);
           res.status(500).json({ error: 'Erro ao processar JSON do GitHub' });
@@ -119,7 +105,7 @@ app.get('/marca-com-menos-modelos', (req, res) => {
 });
 
 // Nova rota para encontrar as X marcas com mais modelos
-app.get('/x-marcas-com-mais-modelos/:x', (req, res) => {
+app.get('/marcas/listaMaisModelos/:x', (req, res) => {
   try {
     const x = parseInt(req.params.x, 10); // Obtém o parâmetro X da URL e converte para número
     if (isNaN(x) || x <= 0) {
@@ -156,9 +142,9 @@ app.get('/x-marcas-com-mais-modelos/:x', (req, res) => {
 });
 
 // Nova rota para encontrar as X marcas com menos modelos
-app.get('/x-marcas-com-menos-modelos/:x', (req, res) => {
+app.get('/marcas/listaModelos/:x', (req, res) => {
   try {
-    const x = parseInt(req.params.x, 10); // Obtém o parâmetro X da URL e converte para número
+    const x = parseInt(req.params.x, 10);
     if (isNaN(x) || x <= 0) {
       throw new Error('O parâmetro X deve ser um número inteiro positivo.');
     }
@@ -192,32 +178,87 @@ app.get('/x-marcas-com-menos-modelos/:x', (req, res) => {
   }
 });
 
+// Nova rota para encontrar os modelos de uma marca a partir de uma requisição POST
+app.post('/marcas/listaModelos', (req, res) => {
+  try {
+    const nomeMarca = req.body.nomeMarca;
+    if (!nomeMarca) {
+      throw new Error('O parâmetro nomeMarca não foi fornecido.');
+    }
+    const dadosJson = req.body.dadosJson;
+    if (!dadosJson) {
+      throw new Error('Os dados do JSON não foram fornecidos.');
+    }
+    const modelosDaMarca = encontrarModelosDaMarca(dadosJson, nomeMarca);
+    res.json({ modelosDaMarca });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ error: error.message });
+  }
+});
 
+//FUNÇÕES///
 
-
-// Função para encontrar a marca com menos modelos
-function encontrarMarcaComMenosModelos(jsonData) {
+// Função para encontrar as marcas com mais modelos
+function encontrarMarcasComMaisModelos(jsonData) {
   try {
     if (jsonData.length === 0) {
       throw new Error('O JSON não contém dados de marcas e modelos.');
     }
 
-    let marcaMenosModelos = jsonData[0].brand;
-    let minModelos = jsonData[0].models.length;
+    let maxModelos = 0;
+    let marcasComMaisModelos = [];
+
+    jsonData.forEach((marca) => {
+      if (marca.models.length > maxModelos) {
+        maxModelos = marca.models.length;
+        marcasComMaisModelos = [marca.brand];
+      } else if (marca.models.length === maxModelos) {
+        marcasComMaisModelos.push(marca.brand);
+      }
+    });
+
+    if (marcasComMaisModelos.length === 1) {
+      return marcasComMaisModelos[0];
+    }
+
+    return marcasComMaisModelos;
+  } catch (error) {
+    console.error(`Erro ao encontrar as marcas com mais modelos: ${error.message}`);
+    throw error;
+  }
+}
+
+// Função para encontrar as marcas com menos modelos
+function encontrarMarcasComMenosModelos(jsonData) {
+  try {
+    if (jsonData.length === 0) {
+      throw new Error('O JSON não contém dados de marcas e modelos.');
+    }
+
+    let minModelos = Infinity;
+    let marcasComMenosModelos = [];
 
     jsonData.forEach((marca) => {
       if (marca.models.length < minModelos) {
         minModelos = marca.models.length;
-        marcaMenosModelos = marca.brand;
+        marcasComMenosModelos = [marca.brand];
+      } else if (marca.models.length === minModelos) {
+        marcasComMenosModelos.push(marca.brand);
       }
     });
 
-    return marcaMenosModelos;
+    if (marcasComMenosModelos.length === 1) {
+      return marcasComMenosModelos[0];
+    }
+
+    return marcasComMenosModelos;
   } catch (error) {
-    console.error(`Erro ao encontrar a marca com menos modelos: ${error.message}`);
+    console.error(`Erro ao encontrar as marcas com menos modelos: ${error.message}`);
     throw error;
   }
 }
+
 
 // Função para encontrar as X marcas com mais modelos
 function encontrarXMarcasComMaisModelos(jsonData, x) {
@@ -255,10 +296,8 @@ function encontrarXMarcasComMenosModelos(jsonData, x) {
       return a.brand.localeCompare(b.brand);
     });
 
-    // Pega as primeiras X marcas
     const xMarcas = marcasOrdenadas.slice(0, x);
 
-    // Cria o array de resultados
     const resultados = xMarcas.map((marca) => `${marca.brand} - ${marca.models.length}`);
 
     return resultados;
@@ -268,8 +307,25 @@ function encontrarXMarcasComMenosModelos(jsonData, x) {
   }
 }
 
+// Função para encontrar os modelos de uma marca
+function encontrarModelosDaMarca(jsonData, nomeMarca) {
+  try {
+    if (jsonData.length === 0) {
+      throw new Error('O JSON não contém dados de marcas e modelos.');
+    }
 
+    const marcaEncontrada = jsonData.find((marca) => marca.brand.toLowerCase() === nomeMarca.toLowerCase());
 
+    if (!marcaEncontrada) {
+      return [];
+    }
+
+    return marcaEncontrada.models;
+  } catch (error) {
+    console.error(`Erro ao encontrar os modelos da marca: ${error.message}`);
+    throw error;
+  }
+}
 
 app.listen(port, () => {
   console.log(`Servidor rodando em http://localhost:${port}`);
