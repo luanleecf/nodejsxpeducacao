@@ -30,7 +30,7 @@ Clone o Repositório: Faça o clone deste repositório em sua máquina local.
 
 bash
 Copy code
-git clone https://caminho/do/seu/repositorio.git
+git clone https://github.com/luanleecf/nodejsxpeducacao.git
 Instale as Dependências: Navegue até o diretório do projeto e execute o seguinte comando para instalar as dependências.
 
 bash
