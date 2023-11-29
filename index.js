@@ -190,13 +190,14 @@ app.post('/marcas/listaModelos', (req, res) => {
     if (!dadosJson) {
       throw new Error('Os dados do JSON não foram fornecidos.');
     }
-    const modelosDaMarca = marcasController.encontrarModelosDaMarca(dadosJson, nomeMarca);
+    const modelosDaMarca = encontrarModelosDaMarca(dadosJson, nomeMarca);
     res.json({ modelosDaMarca });
   } catch (error) {
     console.error(error);
     res.status(400).json({ error: error.message });
   }
 });
+
 
 app.listen(port, () => {
   console.log(`Servidor rodando em http://localhost:${port}`);
